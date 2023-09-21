@@ -1,7 +1,8 @@
-import { colors, buttons, board } from "./header.js";
+import { colors, buttons, board, currentColor } from "./header.js";
 
 let gridSize;
 let color;
+let click = false;
 
 // creates the squares using the value of the button you press.
 function populateBoard(input) {
@@ -24,12 +25,24 @@ function removeSquares() {
 const game = () => {
   buttons.forEach((button) => {
     button.addEventListener("click", (e) => {
+      if (color === undefined) {
+        currentColor.style.cssText = "background-color: black";
+        color = "black";
+        console.log(color);
+      }
       if (gridSize != e.target.getAttribute("value")) {
         // populates board only if you selected a different grid size
         gridSize = e.target.getAttribute("value");
         removeSquares();
         populateBoard(gridSize);
       }
+    });
+  });
+  // for selecting the color
+  colors.forEach((color) => {
+    color.addEventListener("click", (e) => {
+      color = e.target.getAttribute("value");
+      currentColor.style.cssText = `background-color: ${color}`;
     });
   });
 };
