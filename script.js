@@ -1,8 +1,8 @@
 import { colors, buttons, board, currentColor } from "./header.js";
 
 let gridSize;
-let color;
-let click = false;
+let selectedColor;
+let isDrawing = false;
 
 // creates the squares using the value of the button you press.
 function populateBoard(input) {
@@ -15,34 +15,57 @@ function populateBoard(input) {
   }
 }
 
-// if other button is pressed, it removes the current squares
+// if another button is pressed, it removes the current squares
 function removeSquares() {
   while (board.firstChild) {
     board.removeChild(board.firstChild);
   }
 }
 
+// select color & change "current color" background
+function selectColor(e) {
+  selectedColor = e.target.getAttribute("value");
+  currentColor.style.cssText = `background-color: ${selectedColor}`;
+}
+
+function selectGrid(e) {
+  if (selectedColor === undefined) {
+    currentColor.style.cssText = "background-color: black";
+    selectedColor = "black";
+  }
+  if (gridSize != e.target.getAttribute("value")) {
+    // populates board only if you selected a different grid size
+    gridSize = e.target.getAttribute("value");
+    removeSquares();
+    populateBoard(gridSize);
+    const squares = document.querySelectorAll(".square");
+    squares.forEach((square) => {
+      square.addEventListener("mousedown", () => {
+        isDrawing = true;
+      });
+      square.addEventListener("mouseup", () => {
+        isDrawing = false;
+      });
+      square.addEventListener("mouseenter", () => {
+        if (isDrawing) {
+          square.style.cssText = `background-color: ${selectedColor}`;
+        }
+      });
+    });
+  }
+}
+
 const game = () => {
-  buttons.forEach((button) => {
-    button.addEventListener("click", (e) => {
-      if (color === undefined) {
-        currentColor.style.cssText = "background-color: black";
-        color = "black";
-        console.log(color);
-      }
-      if (gridSize != e.target.getAttribute("value")) {
-        // populates board only if you selected a different grid size
-        gridSize = e.target.getAttribute("value");
-        removeSquares();
-        populateBoard(gridSize);
-      }
+  // for selecting the color
+  colors.forEach((colorButton) => {
+    colorButton.addEventListener("click", (e) => {
+      selectColor(e);
     });
   });
-  // for selecting the color
-  colors.forEach((color) => {
-    color.addEventListener("click", (e) => {
-      color = e.target.getAttribute("value");
-      currentColor.style.cssText = `background-color: ${color}`;
+  // grid buttons
+  buttons.forEach((button) => {
+    button.addEventListener("click", (e) => {
+      selectGrid(e);
     });
   });
 };
